@@ -1,44 +1,67 @@
 const tls = require('tls');
 
+// Admin Platform Commission Configuration
+const ADMIN_FAMPAY_UPI = 'shubh412@fam';
+const PLATFORM_COMMISSION_PERCENT = 5.0; // 5% Commission
+
 /**
- * FamPay Dynamic UPI QR Generator
+ * Generate Multi-Merchant UPI Payment QR with 5% Platform Commission Split
  * @param {Object} params
- * @param {string} params.vpa - FamPay UPI ID (e.g. 'shubh412@fam')
- * @param {number} params.amount - Amount in INR
- * @param {string} params.orderId - Unique Order ID (e.g. 'ORDER_12345')
- * @param {string} [params.name] - Business / Receiver Name
- * @returns {Object} { orderId, upiUri, qrImageUrl, vpa, amount }
+ * @param {Object} params.merchant - Merchant API Key credentials object
+ * @param {string} params.merchant.vpa - Merchant's FamPay UPI VPA (e.g. 'merchant@fam')
+ * @param {string} params.merchant.storeName - Merchant's Store/Business Name
+ * @param {number} params.amount - Total payment amount in INR
+ * @param {string} params.orderId - Unique Order ID (e.g. 'ORDER_DEMON_102030')
+ * @returns {Object} QR details, 5% commission split, and UPI URIs
  */
-function createDynamicUpiQr({ vpa, amount, orderId, name = 'DemonAPI' }) {
-  if (!vpa || !amount || !orderId) {
-    throw new Error('Missing required parameters: vpa, amount, and orderId are required.');
+function createMerchantPaymentQr({ merchant, amount, orderId }) {
+  if (!merchant || !merchant.vpa || !amount || !orderId) {
+    throw new Error('Missing required params: merchant credentials, amount, and orderId required.');
   }
 
-  const upiUri = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&am=${amount}&tn=${encodeURIComponent(orderId)}&cu=INR`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
+  const numAmount = Number(amount);
+  if (isNaN(numAmount) || numAmount <= 0) {
+    throw new Error('Amount must be a positive number');
+  }
+
+  // 5% Commission Calculation
+  const commissionAmount = Math.round((numAmount * PLATFORM_COMMISSION_PERCENT / 100) * 100) / 100;
+  const merchantNetAmount = Math.round((numAmount - commissionAmount) * 100) / 100;
+
+  // Merchant Primary Payment UPI URI
+  const merchantUpiUri = `upi://pay?pa=${encodeURIComponent(merchant.vpa)}&pn=${encodeURIComponent(merchant.storeName || 'Merchant Store')}&am=${numAmount}&tn=${encodeURIComponent(orderId)}&cu=INR`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(merchantUpiUri)}`;
+
+  // Platform 5% Commission UPI URI
+  const commissionUpiUri = `upi://pay?pa=${encodeURIComponent(ADMIN_FAMPAY_UPI)}&pn=${encodeURIComponent('DemonAPI Platform Commission')}&am=${commissionAmount}&tn=${encodeURIComponent(`COMMISSION_${orderId}`)}&cu=INR`;
 
   return {
     orderId,
-    vpa,
-    amount,
-    upiUri,
+    totalAmount: numAmount,
+    merchantNetAmount,
+    commissionAmount,
+    commissionPercent: `${PLATFORM_COMMISSION_PERCENT}%`,
+    merchantVpa: merchant.vpa,
+    adminCommissionVpa: ADMIN_FAMPAY_UPI,
+    upiUri: merchantUpiUri,
     qrImageUrl,
+    commissionUpiUri,
     createdAt: new Date().toISOString()
   };
 }
 
 /**
- * Strict Gmail IMAP Inbox Scanner
+ * Strict Gmail IMAP Inbox Scanner using Merchant Credentials
  * @param {Object} params
- * @param {string} params.gmailUser - Gmail address receiving payment emails
- * @param {string} params.appPassword - Google App Password (16 characters)
- * @param {string} params.orderId - Order ID string to search for in email body/subject
- * @param {number} [params.timeoutMs] - Socket timeout in milliseconds (default: 6000ms)
- * @returns {Promise<boolean>} Resolves true if matching email is found, false otherwise
+ * @param {string} params.gmailUser - Merchant's Gmail receiving payment alert emails
+ * @param {string} params.appPassword - Merchant's 16-character Google App Password
+ * @param {string} params.orderId - Order ID string to search for in Gmail inbox
+ * @param {number} [params.timeoutMs] - Socket timeout in milliseconds
+ * @returns {Promise<boolean>} Resolves true if matching email is found in inbox
  */
-async function verifyFamPayImapPayment({ gmailUser, appPassword, orderId, timeoutMs = 6000 }) {
+async function verifyMerchantImapPayment({ gmailUser, appPassword, orderId, timeoutMs = 6000 }) {
   if (!gmailUser || !appPassword || !orderId) {
-    throw new Error('Missing required parameters: gmailUser, appPassword, and orderId are required.');
+    throw new Error('Missing required params: gmailUser, appPassword, and orderId required.');
   }
 
   const cleanAppPassword = appPassword.replace(/\s+/g, '');
@@ -63,7 +86,6 @@ async function verifyFamPayImapPayment({ gmailUser, appPassword, orderId, timeou
             step = 3;
             socket.write(`A3 SEARCH TEXT "${orderId}"\r\n`);
           } else if (step === 3) {
-            // Parse line starting with '* SEARCH' followed by numeric sequence IDs
             const lines = str.split('\r\n');
             for (const line of lines) {
               if (line.startsWith('* SEARCH')) {
@@ -81,7 +103,7 @@ async function verifyFamPayImapPayment({ gmailUser, appPassword, orderId, timeou
       });
 
       socket.on('error', (err) => {
-        console.error('FamPay IMAP Socket Error:', err.message);
+        console.error('Merchant IMAP Socket Error:', err.message);
         resolve(false);
       });
 
@@ -90,13 +112,15 @@ async function verifyFamPayImapPayment({ gmailUser, appPassword, orderId, timeou
         resolve(false);
       }, timeoutMs);
     } catch (err) {
-      console.error('FamPay IMAP Exception:', err.message);
+      console.error('Merchant IMAP Exception:', err.message);
       resolve(false);
     }
   });
 }
 
 module.exports = {
-  createDynamicUpiQr,
-  verifyFamPayImapPayment
+  ADMIN_FAMPAY_UPI,
+  PLATFORM_COMMISSION_PERCENT,
+  createMerchantPaymentQr,
+  verifyMerchantImapPayment
 };

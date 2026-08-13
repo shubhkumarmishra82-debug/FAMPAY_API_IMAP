@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FamPay IMAP Payment SaaS Gateway - 5% Platform Commission</title>
+  <meta name="description" content="Generate multi-merchant FamPay API keys for dynamic UPI QR codes and strict Gmail IMAP auto-payment verification with 5% platform commission to shubh412@fam.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <div class="logo-badge">💳</div>
+        <span>FAMPAY <span style="color:var(--cyan-primary);">IMAP GATEWAY</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a class="nav-link active" onclick="switchSection('landing')">Home</a></li>
+        <li><a class="nav-link" onclick="switchSection('keys')">Merchant Keys</a></li>
+        <li><a class="nav-link" onclick="switchSection('playground')">Gateway Tester</a></li>
+        <li><a class="nav-link" onclick="switchSection('docs')">Documentation</a></li>
+        <li><a class="nav-link" onclick="switchSection('analytics')">Platform Commission</a></li>
+      </ul>
+      <button class="btn btn-primary btn-sm" onclick="switchSection('keys')">🔑 Get Merchant API Key</button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- 1. LANDING PAGE -->
+    <section id="sec-landing" class="page-section active">
+      <div class="hero">
+        <div class="hero-pill">⚡ FamPay UPI SaaS Gateway • 5% Commission Engine</div>
+        <h1 class="hero-title">FamPay Dynamic UPI QR.<br><span>Gmail IMAP Auto-Verification.</span></h1>
+        <p style="color:var(--text-muted); font-size:1.2rem; max-width:700px; margin:0 auto 30px;">Any developer can plug their FamPay UPI ID & Gmail App Password to get an API Key for automatic payment verification on their website. 5% platform commission automatically routed to <code>shubh412@fam</code>!</p>
+        <button class="btn btn-primary" onclick="switchSection('keys')">🚀 Generate Your Merchant API Key</button>
+      </div>
+
+      <div class="grid-3" style="margin-top:40px;">
+        <div class="glass-card stat-card">
+          <div class="stat-value" style="color:var(--purple-primary);">5%</div>
+          <div class="stat-label">Platform Commission to <code>shubh412@fam</code></div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-value" style="color:var(--cyan-primary);">95%</div>
+          <div class="stat-label">Direct Net Payment to Merchant VPA</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-value" style="color:var(--green-success);">100%</div>
+          <div class="stat-label">Strict Gmail IMAP Verification</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MERCHANT KEYS -->
+    <section id="sec-keys" class="page-section">
+      <h2 style="font-size:2rem; font-weight:800; margin-bottom:8px;">Merchant API Key Setup</h2>
+      <p style="color:var(--text-muted); margin-bottom:24px;">Enter your FamPay UPI ID, Gmail address, and Google App Password to generate your payment API key.</p>
+
+      <div class="grid-2">
+        <!-- Form -->
+        <div class="glass-card">
+          <h3>Register Merchant API Key</h3>
+          <div class="form-group" style="margin-top:16px;">
+            <label class="form-label">Store / Business Name *</label>
+            <input type="text" class="form-input" id="mch-name" placeholder="e.g. My Telegram Bot Store">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your FamPay UPI ID (VPA) *</label>
+            <input type="text" class="form-input" id="mch-vpa" placeholder="e.g. merchant@fam">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gmail Address Receiving FamPay Alerts *</label>
+            <input type="email" class="form-input" id="mch-gmail" placeholder="e.g. merchant.payment@gmail.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Google App Password (16 Characters) *</label>
+            <input type="password" class="form-input" id="mch-app-pass" placeholder="e.g. xxxx xxxx xxxx xxxx">
+            <div style="font-size:0.78rem; color:var(--text-subtle); margin-top:4px;">Generate at <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:var(--cyan-primary);">Google Account Security -> App Passwords</a></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="createMerchantKeySubmit()">⚡ Generate Merchant API Key</button>
+        </div>
+
+        <!-- Registered Keys Table -->
+        <div class="glass-card">
+          <h3>Active Merchant API Keys</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Store</th>
+                <th>FamPay VPA</th>
+                <th>API Key</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="mch-keys-table">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. GATEWAY TESTER PLAYGROUND -->
+    <section id="sec-playground" class="page-section">
+      <h2 style="font-size:2rem; font-weight:800; margin-bottom:8px;">Payment Gateway Tester</h2>
+      <p style="color:var(--text-muted); margin-bottom:24px;">Test dynamic QR code creation and IMAP email verification using your API Key.</p>
+
+      <div class="grid-2">
+        <div class="glass-card">
+          <h3>1. Generate Dynamic UPI QR</h3>
+          <div class="form-group" style="margin-top:16px;">
+            <label class="form-label">FamPay API Key</label>
+            <input type="text" class="form-input" id="pg-mch-key" value="fp_live_demo1234567890abcdef">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount in INR (₹)</label>
+            <input type="number" class="form-input" id="pg-amount" value="999">
+          </div>
+          <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="executePgCreateQr()">⚡ Create Payment QR</button>
+        </div>
+
+        <div class="glass-card">
+          <h3>2. QR Output & 5% Commission</h3>
+          <div class="code-box" id="pg-qr-output" style="height:280px; overflow-y:auto;">// Click Create Payment QR to see dynamic response</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. DOCUMENTATION -->
+    <section id="sec-docs" class="page-section">
+      <h2 style="font-size:2rem; font-weight:800; margin-bottom:8px;">API Documentation</h2>
+      <p style="color:var(--text-muted); margin-bottom:24px;">How to integrate this FamPay IMAP payment engine into your website.</p>
+
+      <div class="glass-card">
+        <h3>HTTP Request Header</h3>
+        <div class="code-box" style="margin-top:8px;">Authorization: Bearer fp_live_YOUR_MERCHANT_API_KEY</div>
+
+        <h3 style="margin-top:24px;">1. Create Dynamic UPI QR Code</h3>
+        <div class="code-box" style="margin-top:8px;">POST /api/v1/payments/create-qr
+Body: { "amount": 999, "userEmail": "customer@gmail.com" }</div>
+
+        <h3 style="margin-top:24px;">2. Strict Gmail IMAP Verification</h3>
+        <div class="code-box" style="margin-top:8px;">POST /api/v1/payments/verify-imap
+Body: { "orderId": "ORDER_DEMON_542066" }</div>
+      </div>
+    </section>
+
+    <!-- 5. PLATFORM COMMISSION -->
+    <section id="sec-analytics" class="page-section">
+      <h2 style="font-size:2rem; font-weight:800; margin-bottom:8px;">Platform 5% Commission Earnings</h2>
+      <p style="color:var(--text-muted); margin-bottom:24px;">Live telemetry of 5% platform commission routed directly to <code>shubh412@fam</code>.</p>
+
+      <div class="grid-3">
+        <div class="glass-card stat-card">
+          <div class="stat-label">Admin FamPay VPA</div>
+          <div class="stat-value" style="color:var(--cyan-primary); font-size:1.8rem;">shubh412@fam</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-label">Total Commission Earned (5%)</div>
+          <div class="stat-value" id="adm-commission-val" style="color:var(--green-success);">₹49.95</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-label">Total Gateway Volume</div>
+          <div class="stat-value" id="adm-volume-val">₹999.00</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 FamPay IMAP Payment SaaS • 5% Commission Engine powering Merchant Websites.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
