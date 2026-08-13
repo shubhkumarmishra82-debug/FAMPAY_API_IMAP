@@ -1,0 +1,26 @@
+{
+  "name": "fampay-imap-backend",
+  "version": "1.0.0",
+  "description": "Standalone FamPay Dynamic UPI QR & Gmail IMAP Auto-Payment Verification Engine",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "fampay",
+    "upi",
+    "qr-code",
+    "imap",
+    "gmail",
+    "payment-verification",
+    "express"
+  ],
+  "author": "Shubh Kumar Mishra",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

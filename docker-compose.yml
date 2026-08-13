@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  fampay_imap_service:
+    build: .
+    container_name: fampay_imap_backend
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - FAMPAY_UPI_ID=shubh412@fam
+      - GMAIL_USER=ragini.19854@gmail.com
+      - GMAIL_APP_PASSWORD=yhzlqqhtsxeaoztg
+    restart: always
